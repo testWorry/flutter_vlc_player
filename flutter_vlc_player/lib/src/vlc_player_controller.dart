@@ -181,7 +181,7 @@ class VlcPlayerController extends ValueNotifier<VlcPlayerValue> {
       );
     }
     if (value.isInitialized) {
-      throw Exception('Already Initialized');
+      // throw Exception('Already Initialized');
     }
 
     if (!allowBackgroundPlayback) {
