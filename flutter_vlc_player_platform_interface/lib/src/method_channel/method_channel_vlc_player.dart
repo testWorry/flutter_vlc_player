@@ -66,37 +66,28 @@ class MethodChannelVlcPlayer extends VlcPlayerPlatform {
   }) {
     const viewType = 'flutter_video_plugin/getVideoView';
     if (Platform.isAndroid) {
-      return virtualDisplay
-          ? AndroidView(
-              viewType: viewType,
-              hitTestBehavior: PlatformViewHitTestBehavior.transparent,
-              onPlatformViewCreated: onPlatformViewCreated,
-              creationParamsCodec: const StandardMessageCodec(),
+       return PlatformViewLink(
+        viewType: viewType,
+        surfaceFactory:
+            (BuildContext context, PlatformViewController controller) {
+          return AndroidViewSurface(
+            controller: controller as AndroidViewController,
+            gestureRecognizers: const {},
+            hitTestBehavior: PlatformViewHitTestBehavior.transparent,
+          );
+        },
+        onCreatePlatformView: (PlatformViewCreationParams params) {
+          return PlatformViewsService.initExpensiveAndroidView(
+            id: params.id,
+            viewType: viewType,
+            layoutDirection: TextDirection.ltr,
+            creationParamsCodec: const StandardMessageCodec(),
+          )
+            ..addOnPlatformViewCreatedListener(
+              params.onPlatformViewCreated,
             )
-          : PlatformViewLink(
-              viewType: viewType,
-              surfaceFactory:
-                  (BuildContext context, PlatformViewController controller) {
-                return AndroidViewSurface(
-                  controller: controller as AndroidViewController,
-                  gestureRecognizers: const {},
-                  hitTestBehavior: PlatformViewHitTestBehavior.transparent,
-                );
-              },
-              onCreatePlatformView: (PlatformViewCreationParams params) {
-                return PlatformViewsService.initSurfaceAndroidView(
-                  id: params.id,
-                  viewType: viewType,
-                  layoutDirection: TextDirection.ltr,
-                  creationParamsCodec: const StandardMessageCodec(),
-                )
-                  ..addOnPlatformViewCreatedListener(
-                    params.onPlatformViewCreated,
-                  )
-                  ..addOnPlatformViewCreatedListener(onPlatformViewCreated)
-                  ..create();
-              },
-            );
+    
+          ..addOnPlatformViewCreatedListener(onPlatformViewCreated);
     } else if (Platform.isIOS) {
       return UiKitView(
         viewType: viewType,
